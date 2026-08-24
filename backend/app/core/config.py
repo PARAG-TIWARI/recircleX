@@ -51,7 +51,7 @@ class Settings(BaseSettings):
     NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: str = ""
 
     # CORS
-    CORS_ORIGINS: Union[List[str], str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
+    CORS_ORIGINS: Union[List[str], str] = ["*"]
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
