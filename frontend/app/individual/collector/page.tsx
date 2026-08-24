@@ -159,7 +159,7 @@ export default function CollectorDashboard() {
             <CardContent className="p-4 flex items-center justify-between">
               <div>
                 <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-                  Today's Pickups
+                  Today&apos;s Pickups
                 </span>
                 <span className="text-xl font-bold text-teal-800 mt-1 block">
                   {stats?.todays_pickups_count || 0} <span className="text-xs font-normal text-slate-500">jobs</span>

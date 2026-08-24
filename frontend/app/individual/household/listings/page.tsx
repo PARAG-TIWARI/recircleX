@@ -136,7 +136,7 @@ export default function MyListingsPage() {
             <div>
               <h3 className="text-base font-bold text-slate-900">No waste listings found</h3>
               <p className="text-xs text-slate-500 mt-1">
-                You haven't listed any scrap yet. Upload a photo to identify your material and earn cash.
+                You haven&apos;t listed any scrap yet. Upload a photo to identify your material and earn cash.
               </p>
             </div>
             <Link

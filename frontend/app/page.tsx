@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import {
@@ -200,7 +200,7 @@ export default function LandingPage() {
                 </div>
 
                 <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight">
-                  India's Operating System for Recycling &{" "}
+                  India&apos;s Operating System for Recycling &{" "}
                   <span className="text-[#0F766E]">Raw Material Trade</span>
                 </h1>
 

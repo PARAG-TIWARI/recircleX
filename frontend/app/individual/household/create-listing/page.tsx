@@ -482,7 +482,7 @@ export default function CreateListingPage() {
                     <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                       {photos.map((p, idx) => (
                         <div key={idx} className="relative group rounded-lg overflow-hidden border border-slate-200 aspect-square bg-slate-100">
-                          <img src={p.previewUrl} className="h-full w-full object-cover" />
+                          <img src={p.previewUrl} alt={`Scrap preview ${idx + 1}`} className="h-full w-full object-cover" />
                           <button
                             type="button"
                             onClick={() => removePhoto(idx)}
@@ -982,7 +982,7 @@ export default function CreateListingPage() {
                     {photos.length > 0 ? (
                       <div className="flex gap-2 overflow-x-auto max-w-sm">
                         {photos.map((p, i) => (
-                          <img key={i} src={p.previewUrl} className="h-12 w-12 rounded object-cover border border-slate-200" />
+                          <img key={i} src={p.previewUrl} alt={`Scrap photo ${i + 1}`} className="h-12 w-12 rounded object-cover border border-slate-200" />
                         ))}
                       </div>
                     ) : (

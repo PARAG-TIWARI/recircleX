@@ -281,7 +281,7 @@ export default function HouseholdProfilePage() {
           {/* List of saved addresses */}
           {addresses.length === 0 ? (
             <p className="text-xs text-slate-500 py-4 text-center">
-              No saved addresses yet. Click "Add Address" to save your home location.
+              No saved addresses yet. Click &quot;Add Address&quot; to save your home location.
             </p>
           ) : (
             <div className="grid sm:grid-cols-2 gap-4">
