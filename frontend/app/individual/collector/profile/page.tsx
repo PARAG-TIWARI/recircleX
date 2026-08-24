@@ -36,7 +36,7 @@ export default function CollectorProfilePage() {
       setName(res.name || user?.fullName || "");
       setPhone(res.phone || "");
       setServiceArea(res.service_area || "Metro Zone 1");
-    }).catch(() => {});
+    }).catch(() => { });
   }, [user]);
 
   const handleSave = async (e: React.FormEvent) => {

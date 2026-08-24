@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import {
   ShoppingBag,
@@ -39,7 +39,7 @@ export default function MarketplaceCatalogPage() {
   // Filters
   const [category, setCategory] = useState<string>("All");
   const [quality, setQuality] = useState<string>("All");
-  const [search, setSearch] = useState<string>("" );
+  const [search, setSearch] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("newest");
 
   // Fast Reservation Modal State
@@ -50,7 +50,7 @@ export default function MarketplaceCatalogPage() {
   const categories = ["All", "Plastic", "Paper", "Metal", "E-Waste", "Glass"];
   const qualityGrades = ["All", "Grade A", "Grade B", "Industrial Clean", "Standard"];
 
-  const fetchListings = async () => {
+  const fetchListings = useCallback(async () => {
     setIsLoading(true);
     try {
       const res = await marketplaceApi.getListings({
@@ -67,11 +67,11 @@ export default function MarketplaceCatalogPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [category, quality, search, sortBy]);
 
   useEffect(() => {
     fetchListings();
-  }, [category, quality, sortBy]);
+  }, [fetchListings]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -158,11 +158,10 @@ export default function MarketplaceCatalogPage() {
               <button
                 key={cat}
                 onClick={() => setCategory(cat)}
-                className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors whitespace-nowrap ${
-                  category === cat
+                className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors whitespace-nowrap ${category === cat
                     ? "bg-[#0F766E] text-white"
                     : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                }`}
+                  }`}
               >
                 {cat}
               </button>

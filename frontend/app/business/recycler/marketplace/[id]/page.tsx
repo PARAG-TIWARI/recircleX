@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -36,7 +36,7 @@ export default function MarketplaceDetailPage() {
   const [showReserveModal, setShowReserveModal] = useState(false);
   const [reservationNotes, setReservationNotes] = useState("");
 
-  const fetchDetail = async () => {
+  const fetchDetail = useCallback(async () => {
     if (!listingId) return;
     try {
       const res = await marketplaceApi.getListingDetail(listingId);
@@ -46,11 +46,11 @@ export default function MarketplaceDetailPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [listingId, toast]);
 
   useEffect(() => {
     fetchDetail();
-  }, [listingId]);
+  }, [fetchDetail]);
 
   const handleConfirmReservation = async () => {
     setIsReserving(true);
@@ -140,11 +140,10 @@ export default function MarketplaceDetailPage() {
               <div className="absolute top-4 right-4">
                 <Badge
                   variant="neutral"
-                  className={`text-xs font-bold px-2.5 py-0.5 ${
-                    listing.status === "ACTIVE"
+                  className={`text-xs font-bold px-2.5 py-0.5 ${listing.status === "ACTIVE"
                       ? "bg-emerald-600 text-white border-none"
                       : "bg-slate-800 text-white border-none"
-                  }`}
+                    }`}
                 >
                   {listing.status}
                 </Badge>

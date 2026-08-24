@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { SignIn, SignUp, useUser, useAuth } from "@clerk/nextjs";
 import {
@@ -57,7 +57,7 @@ export default function BusinessAuthPage() {
     }
   };
 
-  const handleAuthRouting = async () => {
+  const handleAuthRouting = useCallback(async () => {
     if (!isLoaded || !isSignedIn || !user || hasRoutedRef.current) return;
 
     setIsSyncing(true);
@@ -129,13 +129,13 @@ export default function BusinessAuthPage() {
       setSyncError(error.message || "Failed to synchronize session with application server.");
       hasRoutedRef.current = false; // Allow user to retry
     }
-  };
+  }, [isLoaded, isSignedIn, user, getToken, selectedRole, router, toast]);
 
   useEffect(() => {
     if (isSignedIn && isLoaded && user && !hasRoutedRef.current) {
       handleAuthRouting();
     }
-  }, [isLoaded, isSignedIn, user]);
+  }, [isLoaded, isSignedIn, user, handleAuthRouting]);
 
 
   return (
@@ -170,7 +170,7 @@ export default function BusinessAuthPage() {
       {/* Main Container: Two-Column Enterprise Split Screen */}
       <main className="flex-1 mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex items-center">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center w-full">
-          
+
           {/* Left Column: B2B Enterprise Value Props (5 Cols) */}
           <div className="lg:col-span-5 space-y-6">
             <div className="space-y-2">
@@ -241,7 +241,7 @@ export default function BusinessAuthPage() {
           {/* Right Column: Clean Operational Auth Card (7 Cols) */}
           <div className="lg:col-span-7 flex justify-center">
             <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm overflow-hidden">
-              
+
               {/* Header Title */}
               <div className="text-center pb-5 border-b border-slate-100">
                 <h2 className="text-lg font-bold text-slate-900">
@@ -261,11 +261,10 @@ export default function BusinessAuthPage() {
                       <button
                         type="button"
                         onClick={() => handleRoleSelect("RECYCLER")}
-                        className={`flex items-center gap-2 p-2.5 rounded-lg border text-left transition-all ${
-                          selectedRole === "RECYCLER"
+                        className={`flex items-center gap-2 p-2.5 rounded-lg border text-left transition-all ${selectedRole === "RECYCLER"
                             ? "border-[#0F766E] bg-teal-50/70 text-[#0F766E] ring-1 ring-[#0F766E]"
                             : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                        }`}
+                          }`}
                       >
                         <Factory className="h-4 w-4 shrink-0" />
                         <div>
@@ -277,11 +276,10 @@ export default function BusinessAuthPage() {
                       <button
                         type="button"
                         onClick={() => handleRoleSelect("ENTERPRISE")}
-                        className={`flex items-center gap-2 p-2.5 rounded-lg border text-left transition-all ${
-                          selectedRole === "ENTERPRISE"
+                        className={`flex items-center gap-2 p-2.5 rounded-lg border text-left transition-all ${selectedRole === "ENTERPRISE"
                             ? "border-[#0F766E] bg-teal-50/70 text-[#0F766E] ring-1 ring-[#0F766E]"
                             : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                        }`}
+                          }`}
                       >
                         <Building2 className="h-4 w-4 shrink-0" />
                         <div>
@@ -299,22 +297,20 @@ export default function BusinessAuthPage() {
                 <button
                   type="button"
                   onClick={() => setAuthMode("SIGNIN")}
-                  className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-colors ${
-                    authMode === "SIGNIN"
+                  className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-colors ${authMode === "SIGNIN"
                       ? "bg-white text-slate-900 shadow-2xs"
                       : "text-slate-500 hover:text-slate-900"
-                  }`}
+                    }`}
                 >
                   Sign In
                 </button>
                 <button
                   type="button"
                   onClick={() => setAuthMode("SIGNUP")}
-                  className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-colors ${
-                    authMode === "SIGNUP"
+                  className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-colors ${authMode === "SIGNUP"
                       ? "bg-white text-slate-900 shadow-2xs"
                       : "text-slate-500 hover:text-slate-900"
-                  }`}
+                    }`}
                 >
                   Sign Up (New Business)
                 </button>

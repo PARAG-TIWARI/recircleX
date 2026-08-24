@@ -50,7 +50,7 @@ export function Navbar() {
           setNotifications(res.items);
           setUnreadCount(res.unread_count);
         })
-        .catch(() => {});
+        .catch(() => { });
     }
   }, [isSignedIn]);
 
@@ -172,11 +172,10 @@ export function Navbar() {
                           key={ws.role}
                           href={ws.href}
                           onClick={() => setShowRoleMenu(false)}
-                          className={`flex items-center gap-2.5 rounded-md px-2.5 py-2 text-xs font-medium transition-colors ${
-                            active
+                          className={`flex items-center gap-2.5 rounded-md px-2.5 py-2 text-xs font-medium transition-colors ${active
                               ? "bg-teal-50 text-[#0F766E] font-semibold"
                               : "text-slate-700 hover:bg-slate-100"
-                          }`}
+                            }`}
                         >
                           <Icon className={`h-4 w-4 ${active ? "text-[#0F766E]" : "text-slate-400"}`} />
                           <span>{ws.label}</span>
@@ -257,9 +256,8 @@ export function Navbar() {
                           notifications.map((n) => (
                             <div
                               key={n.id}
-                              className={`p-3.5 text-xs transition-colors hover:bg-slate-50/80 flex items-start justify-between gap-3 ${
-                                !n.is_read ? "bg-teal-50/40" : ""
-                              }`}
+                              className={`p-3.5 text-xs transition-colors hover:bg-slate-50/80 flex items-start justify-between gap-3 ${!n.is_read ? "bg-teal-50/40" : ""
+                                }`}
                             >
                               <div className="space-y-1 flex-1">
                                 <div className="font-semibold text-slate-900 flex items-center gap-1.5">

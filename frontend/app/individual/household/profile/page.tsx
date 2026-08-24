@@ -51,11 +51,11 @@ export default function HouseholdProfilePage() {
       setProfile(res);
       setPhone(res.phone || "");
       setBio(res.bio || "");
-    }).catch(() => {});
+    }).catch(() => { });
 
     addressesApi.getAddresses().then((res) => {
       setAddresses(res);
-    }).catch(() => {});
+    }).catch(() => { });
   }, []);
 
   const handleSaveProfile = async (e: React.FormEvent) => {

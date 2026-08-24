@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -42,7 +42,7 @@ export default function CollectorPickupDetailPage() {
   const [finalAmount, setFinalAmount] = useState<number>(180.0);
   const [intakeNotes, setIntakeNotes] = useState<string>("");
 
-  const fetchPickup = async () => {
+  const fetchPickup = useCallback(async () => {
     if (!pickupId) return;
     try {
       const res = await collectorApi.getPickupDetail(pickupId);
@@ -54,11 +54,11 @@ export default function CollectorPickupDetailPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [pickupId, toast]);
 
   useEffect(() => {
     fetchPickup();
-  }, [pickupId]);
+  }, [fetchPickup]);
 
   const handleAccept = async () => {
     setActionLoading(true);
@@ -179,15 +179,14 @@ export default function CollectorPickupDetailPage() {
             <div className="flex items-center gap-2">
               <Badge
                 variant="neutral"
-                className={`text-xs font-bold px-3 py-1 ${
-                  pickup.status === "REQUESTED"
+                className={`text-xs font-bold px-3 py-1 ${pickup.status === "REQUESTED"
                     ? "bg-amber-500 text-white border-none"
                     : pickup.status === "ASSIGNED"
-                    ? "bg-blue-600 text-white border-none"
-                    : pickup.status === "ON_THE_WAY"
-                    ? "bg-teal-600 text-white border-none"
-                    : "bg-emerald-600 text-white border-none"
-                }`}
+                      ? "bg-blue-600 text-white border-none"
+                      : pickup.status === "ON_THE_WAY"
+                        ? "bg-teal-600 text-white border-none"
+                        : "bg-emerald-600 text-white border-none"
+                  }`}
               >
                 {pickup.status.replace("_", " ")}
               </Badge>

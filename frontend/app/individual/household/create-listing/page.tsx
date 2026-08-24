@@ -50,7 +50,7 @@ export default function CreateListingPage() {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
-  
+
   // Camera Refs
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -68,7 +68,7 @@ export default function CreateListingPage() {
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
   const [materialQuery, setMaterialQuery] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
-  
+
   const [selectedMaterial, setSelectedMaterial] = useState("PET Plastic");
   const [selectedCategory, setSelectedCategory] = useState("Plastic");
   const [aiSuggestion, setAiSuggestion] = useState<MaterialAnalysisResult | null>(null);
@@ -83,7 +83,7 @@ export default function CreateListingPage() {
   const [isLocating, setIsLocating] = useState(false);
   const [detectedAddress, setDetectedAddress] = useState<any>(null);
   const [locationPermissionDenied, setLocationPermissionDenied] = useState(false);
-  
+
   // Manual Address Fields
   const [addressLabel, setAddressLabel] = useState("Home");
   const [streetAddress, setStreetAddress] = useState("");
@@ -118,7 +118,7 @@ export default function CreateListingPage() {
         if (def) setSelectedAddressId(def.id);
         else if (addrs.length > 0) setSelectedAddressId(addrs[0].id);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   // Sync expected rate when material changes
@@ -151,7 +151,7 @@ export default function CreateListingPage() {
           setIsLoadingSlots(false);
         });
     }
-  }, [step]);
+  }, [step, toast]);
 
   // Handle autocomplete suggestions
   useEffect(() => {
@@ -159,7 +159,7 @@ export default function CreateListingPage() {
       setSuggestions([]);
       return;
     }
-    const matches = Object.keys(pricingMatrix).filter(m => 
+    const matches = Object.keys(pricingMatrix).filter(m =>
       m.toLowerCase().includes(materialQuery.toLowerCase())
     );
     setSuggestions(matches);
@@ -231,7 +231,7 @@ export default function CreateListingPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
-    
+
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       if (file.size > 8 * 1024 * 1024) {
@@ -255,7 +255,7 @@ export default function CreateListingPage() {
 
     setIsProcessing(true);
     toast("Uploading scrap media to cloud...", "info");
-    
+
     try {
       const uploadedPhotos = [...photos];
       // Upload photos in series
@@ -278,7 +278,7 @@ export default function CreateListingPage() {
         setUseAISuggestion(true);
         toast(`AI identified ${analysis.material} (${analysis.category})!`, "success");
       }
-      
+
       setStep("MATERIAL");
     } catch (err: any) {
       console.error(err);
@@ -293,7 +293,7 @@ export default function CreateListingPage() {
   const handleGPSDetect = () => {
     setIsLocating(true);
     setLocationPermissionDenied(false);
-    
+
     if (!navigator.geolocation) {
       toast("Geolocation is not supported by your browser.", "error");
       setIsLocating(false);
@@ -397,7 +397,7 @@ export default function CreateListingPage() {
   };
 
   const getMaterialsForCategory = () => {
-    return Object.keys(pricingMatrix).filter(m => 
+    return Object.keys(pricingMatrix).filter(m =>
       pricingMatrix[m].category === selectedCategory
     );
   };
@@ -444,7 +444,7 @@ export default function CreateListingPage() {
                       </div>
                       <span className="text-xs font-bold text-slate-950">Take Photo</span>
                     </button>
-                    
+
                     <button
                       onClick={() => fileInputRef.current?.click()}
                       className="border-2 border-dashed border-slate-300 hover:border-[#0F766E] hover:bg-teal-50/10 rounded-xl p-8 transition flex flex-col items-center justify-center gap-2"
@@ -513,7 +513,7 @@ export default function CreateListingPage() {
                 >
                   Skip to Manual Entry
                 </Button>
-                
+
                 <Button
                   onClick={handlePhotoUploadAndProcess}
                   disabled={photos.length === 0 || isProcessing}
@@ -583,7 +583,7 @@ export default function CreateListingPage() {
                       }}
                       className="w-full text-xs"
                     />
-                    
+
                     {suggestions.length > 0 && (
                       <div className="absolute left-0 right-0 z-30 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-40 overflow-y-auto text-xs">
                         {suggestions.map((s) => (
@@ -618,11 +618,10 @@ export default function CreateListingPage() {
                           const mats = Object.keys(pricingMatrix).filter(m => pricingMatrix[m].category === cat);
                           if (mats.length > 0) setSelectedMaterial(mats[0]);
                         }}
-                        className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition ${
-                          selectedCategory === cat
+                        className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition ${selectedCategory === cat
                             ? "border-[#0F766E] bg-teal-50/20 text-[#0F766E]"
                             : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                        }`}
+                          }`}
                       >
                         {cat}
                       </button>
@@ -677,7 +676,7 @@ export default function CreateListingPage() {
                       className="w-full text-xs font-semibold"
                     />
                   </div>
-                  
+
                   <div className="space-y-1.5">
                     <label className="block text-xs font-bold text-slate-700">Unit</label>
                     <select
@@ -763,22 +762,20 @@ export default function CreateListingPage() {
                     <button
                       type="button"
                       onClick={() => setUseSavedAddress(true)}
-                      className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-colors ${
-                        useSavedAddress
+                      className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-colors ${useSavedAddress
                           ? "bg-white text-slate-900 shadow-2xs"
                           : "text-slate-500 hover:text-slate-900"
-                      }`}
+                        }`}
                     >
                       Use Saved Address
                     </button>
                     <button
                       type="button"
                       onClick={() => setUseSavedAddress(false)}
-                      className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-colors ${
-                        !useSavedAddress
+                      className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-colors ${!useSavedAddress
                           ? "bg-white text-slate-900 shadow-2xs"
                           : "text-slate-500 hover:text-slate-900"
-                      }`}
+                        }`}
                     >
                       New Pickup Address
                     </button>
@@ -916,11 +913,10 @@ export default function CreateListingPage() {
                               const slots = availableSlots[date];
                               if (slots.length > 0) setSelectedTimeSlot(slots[0]);
                             }}
-                            className={`p-3 rounded-lg border text-center text-xs font-bold transition flex flex-col justify-center gap-1 ${
-                              selectedDate === date
+                            className={`p-3 rounded-lg border text-center text-xs font-bold transition flex flex-col justify-center gap-1 ${selectedDate === date
                                 ? "border-[#0F766E] bg-teal-50/20 text-[#0F766E]"
                                 : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                            }`}
+                              }`}
                           >
                             <Calendar className="h-4 w-4 mx-auto text-[#0F766E]" />
                             {date}
@@ -937,11 +933,10 @@ export default function CreateListingPage() {
                             key={slot}
                             type="button"
                             onClick={() => setSelectedTimeSlot(slot)}
-                            className={`p-2.5 rounded-lg border text-left text-xs font-semibold transition flex items-center justify-between ${
-                              selectedTimeSlot === slot
+                            className={`p-2.5 rounded-lg border text-left text-xs font-semibold transition flex items-center justify-between ${selectedTimeSlot === slot
                                 ? "border-[#0F766E] bg-teal-50/20 text-[#0F766E] font-bold"
                                 : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                            }`}
+                              }`}
                           >
                             <span>{slot}</span>
                             {selectedTimeSlot === slot && <Check className="h-4 w-4 text-[#0F766E]" />}

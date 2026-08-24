@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -31,7 +31,7 @@ export default function OrderDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const fetchOrder = async () => {
+  const fetchOrder = useCallback(async () => {
     if (!orderId) return;
     try {
       const res = await ordersApi.getOrderDetail(orderId);
@@ -41,11 +41,11 @@ export default function OrderDetailPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [orderId, toast]);
 
   useEffect(() => {
     fetchOrder();
-  }, [orderId]);
+  }, [fetchOrder]);
 
   const handleUpdateStatus = async (newStatus: string) => {
     setIsUpdating(true);
@@ -156,15 +156,14 @@ export default function OrderDetailPage() {
             <div className="flex items-center gap-2">
               <Badge
                 variant="neutral"
-                className={`text-xs font-bold px-3 py-1 ${
-                  order.status === "CONFIRMED"
+                className={`text-xs font-bold px-3 py-1 ${order.status === "CONFIRMED"
                     ? "bg-blue-100 text-blue-800 border-none"
                     : order.status === "PROCESSING"
-                    ? "bg-amber-100 text-amber-800 border-none"
-                    : order.status === "COMPLETED"
-                    ? "bg-emerald-100 text-emerald-800 border-none"
-                    : "bg-slate-200 text-slate-700 border-none"
-                }`}
+                      ? "bg-amber-100 text-amber-800 border-none"
+                      : order.status === "COMPLETED"
+                        ? "bg-emerald-100 text-emerald-800 border-none"
+                        : "bg-slate-200 text-slate-700 border-none"
+                  }`}
               >
                 {order.status}
               </Badge>
@@ -180,21 +179,19 @@ export default function OrderDetailPage() {
                 return (
                   <div
                     key={idx}
-                    className={`p-3.5 rounded-2xl border transition-all ${
-                      isCurrent
+                    className={`p-3.5 rounded-2xl border transition-all ${isCurrent
                         ? "bg-emerald-50/80 border-emerald-300 ring-2 ring-emerald-500/20"
                         : isCompleted
-                        ? "bg-slate-50 border-slate-200"
-                        : "bg-white border-slate-100 opacity-60"
-                    }`}
+                          ? "bg-slate-50 border-slate-200"
+                          : "bg-white border-slate-100 opacity-60"
+                      }`}
                   >
                     <div className="flex items-center gap-2 mb-1.5">
                       <div
-                        className={`h-5 w-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                          isCompleted || isCurrent
+                        className={`h-5 w-5 rounded-full flex items-center justify-center text-[10px] font-bold ${isCompleted || isCurrent
                             ? "bg-emerald-600 text-white"
                             : "bg-slate-200 text-slate-600"
-                        }`}
+                          }`}
                       >
                         {isCompleted ? "✓" : idx + 1}
                       </div>

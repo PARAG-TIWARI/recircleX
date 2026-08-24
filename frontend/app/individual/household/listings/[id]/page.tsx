@@ -74,8 +74,8 @@ export default function ListingDetailPage() {
         const def = res.find((a) => a.is_default) || res[0];
         setSelectedAddressId(def.id);
       }
-    }).catch(() => {});
-  }, [listingId]);
+    }).catch(() => { });
+  }, [listingId, toast]);
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -195,11 +195,10 @@ export default function ListingDetailPage() {
             <div className="flex items-center gap-2">
               <Badge
                 variant="neutral"
-                className={`text-xs font-bold px-3 py-1 ${
-                  listing.status === "AVAILABLE"
+                className={`text-xs font-bold px-3 py-1 ${listing.status === "AVAILABLE"
                     ? "bg-emerald-600 text-white border-none"
                     : "bg-slate-700 text-white border-none"
-                }`}
+                  }`}
               >
                 {listing.status.replace("_", " ")}
               </Badge>

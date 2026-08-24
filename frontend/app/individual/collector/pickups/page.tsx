@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
@@ -41,7 +41,7 @@ export default function CollectorPickupsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
-  const fetchPickups = async () => {
+  const fetchPickups = useCallback(async () => {
     setIsLoading(true);
     try {
       const res = await collectorApi.getPickups(activeTab, 50, 0);
@@ -51,11 +51,11 @@ export default function CollectorPickupsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [activeTab]);
 
   useEffect(() => {
     fetchPickups();
-  }, [activeTab]);
+  }, [fetchPickups]);
 
   const handleAccept = async (id: string) => {
     setActionLoadingId(id);
@@ -121,31 +121,28 @@ export default function CollectorPickupsPage() {
           <div className="flex items-center gap-1.5 overflow-x-auto">
             <button
               onClick={() => setActiveTab("available")}
-              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
-                activeTab === "available"
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${activeTab === "available"
                   ? "bg-[#0F766E] text-white"
                   : "text-slate-600 hover:bg-slate-100"
-              }`}
+                }`}
             >
               Available in Territory
             </button>
             <button
               onClick={() => setActiveTab("assigned")}
-              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
-                activeTab === "assigned"
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${activeTab === "assigned"
                   ? "bg-[#0F766E] text-white"
                   : "text-slate-600 hover:bg-slate-100"
-              }`}
+                }`}
             >
               My Assigned Routes
             </button>
             <button
               onClick={() => setActiveTab("completed")}
-              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
-                activeTab === "completed"
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${activeTab === "completed"
                   ? "bg-[#0F766E] text-white"
                   : "text-slate-600 hover:bg-slate-100"
-              }`}
+                }`}
             >
               Completed Intakes
             </button>
