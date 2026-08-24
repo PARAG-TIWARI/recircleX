@@ -24,11 +24,20 @@ async def test_head_root_endpoint():
 
 @pytest.mark.asyncio
 async def test_health_endpoint():
-    transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as client:
-        response = await client.get("/api/v1/health")
-        assert response.status_code == 200
-        data = response.json()
-        assert data["success"] is True
-        assert "database" in data["data"]
-        assert "status" in data["data"]["database"]
+    from unittest.mock import AsyncMock, patch, MagicMock
+    from backend.app.db.mongodb import db_manager
+
+    mock_client = MagicMock()
+    mock_admin = MagicMock()
+    mock_admin.command = AsyncMock(return_value={"ok": 1})
+    mock_client.admin = mock_admin
+
+    with patch.object(db_manager, "client", mock_client):
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            response = await client.get("/api/v1/health")
+            assert response.status_code == 200
+            data = response.json()
+            assert data["success"] is True
+            assert "database" in data["data"]
+            assert data["data"]["database"]["status"] == "connected"

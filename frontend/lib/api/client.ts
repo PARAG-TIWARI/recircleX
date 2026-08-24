@@ -53,15 +53,34 @@ export class ApiClient {
           headers,
         });
 
-        const data: ApiResponse<T> = await response.json().catch(() => ({
-          success: response.ok,
-          data: null,
-          message: response.statusText || (response.ok ? "Success" : "Request failed"),
-          error: { code: response.status, detail: "Failed to parse JSON response" },
-        }));
+        const rawJson: any = await response.json().catch(() => null);
 
-        if (!response.ok && data.success) {
+        let data: ApiResponse<T>;
+        if (rawJson && typeof rawJson === "object") {
+          data = {
+            success: response.ok && (rawJson.success !== false),
+            data: rawJson.data !== undefined ? rawJson.data : (response.ok ? rawJson : null),
+            message: rawJson.message || rawJson.detail || (response.ok ? "Success" : response.statusText || "Request failed"),
+            error: rawJson.error || (response.ok ? null : { code: response.status, detail: rawJson.detail || response.statusText }),
+          };
+        } else {
+          data = {
+            success: response.ok,
+            data: null,
+            message: response.ok ? "Success" : response.statusText || "Request failed",
+            error: response.ok ? null : { code: response.status, detail: "Failed to parse response" },
+          };
+        }
+
+        if (!response.ok) {
           data.success = false;
+          if (response.status === 503) {
+            data.message = data.message || "Database service currently unavailable. Please verify backend MongoDB configuration.";
+          } else if (response.status === 500) {
+            data.message = data.message || "Internal server error on RecycleX backend.";
+          } else if (response.status === 401) {
+            data.message = data.message || "Authentication credentials invalid or expired.";
+          }
         }
 
         return data;

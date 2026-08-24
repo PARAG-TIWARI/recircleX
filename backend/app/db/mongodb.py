@@ -20,7 +20,7 @@ async def connect_to_mongo() -> None:
         logger.info(f"Connecting to MongoDB Atlas (database: {db_name})...")
         db_manager.client = AsyncIOMotorClient(
             settings.MONGODB_URI,
-            serverSelectionTimeoutMS=4000,
+            serverSelectionTimeoutMS=5000,
             tlsCAFile=certifi.where(),
             tlsAllowInvalidCertificates=True,
         )
@@ -33,7 +33,13 @@ async def connect_to_mongo() -> None:
         # Create indexes
         await _create_indexes()
     except Exception as e:
-        logger.warning(f"MongoDB connection check note: {e}. Running with lazy reconnect.")
+        is_prod = settings.ENVIRONMENT.lower() == "production" or settings.ENV.lower() == "production"
+        msg = f"MongoDB Atlas connection check failed: {e}"
+        if is_prod:
+            logger.error(f"{msg}. Production environment requires an active database. Failing startup.")
+            raise RuntimeError(f"Database connection unavailable during application startup: {e}")
+        else:
+            logger.error(f"{msg}. Continuing in development mode with offline database handling.")
 
 
 async def close_mongo_connection() -> None:

@@ -79,20 +79,11 @@ class AuthService:
 
             return user, profile
 
+        except HTTPException:
+            raise
         except Exception as db_err:
-            logger.warning(f"MongoDB persistence notice (Atlas IP whitelist pending): {db_err}")
-            # Fallback memory model so frontend authentication flow and role routing never break
-            fallback_user = User(
-                clerk_user_id=payload.clerk_user_id,
-                email=payload.email,
-                role=role,
-                status=UserStatus.ACTIVE,
+            logger.error(f"MongoDB persistence error during user sync: {db_err}")
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Database service currently unavailable. Please verify backend MongoDB Atlas connection string and network access.",
             )
-            fallback_profile = Profile(
-                user_id=payload.clerk_user_id,
-                name=payload.name or (payload.email.split("@")[0] if payload.email else "RecycleX Member"),
-                phone=payload.phone,
-                avatar_url=payload.avatar_url,
-                company_name=payload.company_name if portal == "BUSINESS" else None,
-            )
-            return fallback_user, fallback_profile

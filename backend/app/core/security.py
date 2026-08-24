@@ -59,7 +59,11 @@ async def get_current_user(
     try:
         user_model = await user_repo.get_by_clerk_id(clerk_user_id)
     except Exception as e:
-        logger.warning(f"Error fetching user from database: {e}")
+        logger.error(f"Database error fetching user '{clerk_user_id}': {e}")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database service currently unavailable. Please check backend database connection.",
+        )
 
     if not user_model:
         email = claims.get("email") or claims.get("email_address") or f"{clerk_user_id}@recyclex.in"
