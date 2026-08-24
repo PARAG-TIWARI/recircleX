@@ -22,7 +22,6 @@ async def connect_to_mongo() -> None:
             settings.MONGODB_URI,
             serverSelectionTimeoutMS=5000,
             tlsCAFile=certifi.where(),
-            tlsAllowInvalidCertificates=True,
         )
         db_manager.db = db_manager.client[db_name]
         
@@ -79,7 +78,6 @@ def get_database() -> AsyncIOMotorDatabase:
             settings.MONGODB_URI,
             serverSelectionTimeoutMS=5000,
             tlsCAFile=certifi.where(),
-            tlsAllowInvalidCertificates=True,
         )
         db_manager.db = db_manager.client[db_name]
     return db_manager.db
