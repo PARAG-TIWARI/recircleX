@@ -4,10 +4,10 @@ from pydantic import BaseModel, Field
 
 
 class ListingCreate(BaseModel):
-    material: str = Field(..., example="PET Plastic")
-    category: str = Field(..., example="Plastic")
-    title: str = Field(..., example="PET Plastic Bottles")
-    description: Optional[str] = Field(default=None, example="Clean household PET bottles ready for recycling")
+    material: str = Field(..., json_schema_extra={"example": "PET Plastic"})
+    category: str = Field(..., json_schema_extra={"example": "Plastic"})
+    title: str = Field(..., json_schema_extra={"example": "PET Plastic Bottles"})
+    description: Optional[str] = Field(default=None, json_schema_extra={"example": "Clean household PET bottles ready for recycling"})
     images: List[str] = Field(default_factory=list)
     quantity: float = Field(default=1.0, ge=0.1)
     unit: str = Field(default="kg")

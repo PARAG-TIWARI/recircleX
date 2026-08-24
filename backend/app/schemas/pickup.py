@@ -7,7 +7,7 @@ class PickupCreate(BaseModel):
     listing_id: str = Field(..., description="ID of the listing to pick up")
     address_id: Optional[str] = Field(default=None)
     address_snapshot: Optional[Dict[str, Any]] = None
-    preferred_time: str = Field(..., example="Today 2:00 PM - 4:00 PM")
+    preferred_time: str = Field(..., json_schema_extra={"example": "Today 2:00 PM - 4:00 PM"})
     notes: Optional[str] = None
 
 

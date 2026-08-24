@@ -4,11 +4,11 @@ from pydantic import BaseModel, Field
 
 
 class AddressCreate(BaseModel):
-    label: str = Field(default="Home", example="Home, Flat, Office")
-    street_address: str = Field(..., example="402, Green Valley Apartments, MG Road")
-    city: str = Field(default="Mumbai", example="Mumbai")
-    state: str = Field(default="Maharashtra", example="Maharashtra")
-    postal_code: str = Field(..., example="400001")
+    label: str = Field(default="Home", json_schema_extra={"example": "Home, Flat, Office"})
+    street_address: str = Field(..., json_schema_extra={"example": "402, Green Valley Apartments, MG Road"})
+    city: str = Field(default="Mumbai", json_schema_extra={"example": "Mumbai"})
+    state: str = Field(default="Maharashtra", json_schema_extra={"example": "Maharashtra"})
+    postal_code: str = Field(..., json_schema_extra={"example": "400001"})
     landmark: Optional[str] = None
     contact_phone: Optional[str] = None
     is_default: bool = False
