@@ -1,4 +1,4 @@
-﻿import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 const isPublicRoute = createRouteMatcher([
   "/",
@@ -14,7 +14,7 @@ const isBusinessRoute = createRouteMatcher([
   "/admin(.*)",
 ]);
 
-export const middleware = clerkMiddleware((auth, req) => {
+export default clerkMiddleware((auth, req) => {
   if (!isPublicRoute(req)) {
     // Send business/admin route visitors to the business portal
     const redirectUrl = isBusinessRoute(req)

@@ -56,7 +56,7 @@ def create_application() -> FastAPI:
     # Include API Routers
     app.include_router(api_v1_router)
 
-    @app.get("/", tags=["Root"])
+    @app.api_route("/", methods=["GET", "HEAD"], tags=["Root"])
     async def root():
         return {
             "name": settings.APP_NAME,

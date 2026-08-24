@@ -1,6 +1,6 @@
 import { ApiResponse } from "@/types/user";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://recirclex.onrender.com";
 
 export class ApiClient {
   private static tokenGetter: (() => Promise<string | null>) | null = null;
