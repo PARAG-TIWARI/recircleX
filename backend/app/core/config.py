@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     PORT: int = 8000
     API_V1_PREFIX: str = "/api/v1"
     LOG_LEVEL: str = "INFO"
+    BACKEND_URL: str = "https://recirclex.onrender.com"
+    NEXT_PUBLIC_API_URL: str = "https://recirclex.onrender.com"
 
     # Database
     MONGODB_URI: str = "mongodb://localhost:27017"
