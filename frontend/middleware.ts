@@ -14,7 +14,7 @@ const isBusinessRoute = createRouteMatcher([
   "/admin(.*)",
 ]);
 
-export default clerkMiddleware((auth, req) => {
+export const middleware = clerkMiddleware((auth, req) => {
   if (!isPublicRoute(req)) {
     // Send business/admin route visitors to the business portal
     const redirectUrl = isBusinessRoute(req)
