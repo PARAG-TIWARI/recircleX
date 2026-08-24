@@ -1,6 +1,6 @@
-﻿"use client";
+"use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { SignIn, SignUp, useUser } from "@clerk/nextjs";
 import {
@@ -33,13 +33,16 @@ export default function IndividualAuthPage() {
   const [authMode, setAuthMode] = useState<"SIGNIN" | "SIGNUP">("SIGNIN");
   const [isSyncing, setIsSyncing] = useState(false);
 
+  const hasRoutedRef = useRef(false);
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
     async function handleAuthRouting() {
-      if (isLoaded && isSignedIn && user) {
+      if (isLoaded && isSignedIn && user && !hasRoutedRef.current) {
+        hasRoutedRef.current = true;
         setIsSyncing(true);
         try {
           // 1. Check existing role in Clerk metadata or use selected role
@@ -60,25 +63,21 @@ export default function IndividualAuthPage() {
 
           toast(`Authenticated as ${clerkRole}`, "success");
 
-          // 4. Role redirect
-          if (clerkRole === "COLLECTOR") {
-            router.push("/individual/collector");
-          } else {
-            router.push("/individual/household");
-          }
+          // 4. Force browser navigation to role dashboard
+          const targetUrl = clerkRole === "COLLECTOR" ? "/individual/collector" : "/individual/household";
+          window.location.href = targetUrl;
         } catch (error: any) {
           console.error("Clerk role sync error:", error);
-          router.push(selectedRole === "COLLECTOR" ? "/individual/collector" : "/individual/household");
-        } finally {
-          setIsSyncing(false);
+          const targetUrl = selectedRole === "COLLECTOR" ? "/individual/collector" : "/individual/household";
+          window.location.href = targetUrl;
         }
       }
     }
 
-    if (isSignedIn) {
+    if (isSignedIn && isLoaded && user) {
       handleAuthRouting();
     }
-  }, [isLoaded, isSignedIn, user, selectedRole, router, toast]);
+  }, [isLoaded, isSignedIn, user]);
 
   const clerkAppearance = {
     variables: {
