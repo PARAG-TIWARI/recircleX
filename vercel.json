@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "installCommand": "npm approve-scripts sharp unrs-resolver --yes || true && npm install",
+  "installCommand": "cd frontend && npm install",
   "buildCommand": "cd frontend && npm run build",
   "routes": []
 }
