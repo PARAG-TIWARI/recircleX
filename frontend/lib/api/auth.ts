@@ -18,7 +18,11 @@ export interface SyncResponseData {
 }
 
 export const authApi = {
-  syncUser: (payload: SyncPayload): Promise<ApiResponse<SyncResponseData>> => {
-    return ApiClient.post<SyncResponseData>("/api/v1/auth/sync", payload);
+  syncUser: (payload: SyncPayload, token?: string): Promise<ApiResponse<SyncResponseData>> => {
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    return ApiClient.post<SyncResponseData>("/api/v1/auth/sync", payload, { headers });
   },
 };

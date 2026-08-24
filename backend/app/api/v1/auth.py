@@ -5,6 +5,8 @@ from backend.app.schemas.common import APIResponse
 from backend.app.schemas.user import UserRead
 from backend.app.schemas.profile import ProfileRead
 from backend.app.services.auth_service import AuthService
+from backend.app.core.security import get_current_user
+from backend.app.models.user import User
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -12,6 +14,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 @router.post("/sync", response_model=APIResponse)
 async def sync_authenticated_user(
     payload: AuthSyncRequest,
+    current_user: User = Depends(get_current_user),
     db=Depends(get_database),
 ):
     """Sync Clerk user identity with MongoDB Atlas and enforce portal role separation."""

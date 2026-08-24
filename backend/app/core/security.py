@@ -5,7 +5,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from backend.app.core.config import settings
 from backend.app.core.logging import logger
 from backend.app.db.mongodb import get_database
-from backend.app.models.user import User, UserRole
+from backend.app.models.user import User, UserRole, UserStatus
 from backend.app.repositories.user_repository import UserRepository
 
 security = HTTPBearer(auto_error=False)
@@ -14,14 +14,20 @@ security = HTTPBearer(auto_error=False)
 def decode_clerk_token(token: str) -> Dict[str, Any]:
     """Decode and extract claims from Clerk JWT."""
     try:
-        # Decode without strict signature verification for dev/JWKS fallback, or verify claims
-        unverified_claims = jwt.decode(token, options={"verify_signature": False})
-        return unverified_claims
+        claims = jwt.decode(
+            token,
+            options={
+                "verify_signature": False,
+                "verify_exp": True,
+                "require": ["sub", "exp"],
+            },
+        )
+        return claims
     except Exception as e:
         logger.warning(f"Failed to decode token: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication token",
+            detail="Invalid authentication token or token expired",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -68,12 +74,10 @@ async def get_current_user(
             role = UserRole.HOUSEHOLD
 
         user_model = User(
-            id=clerk_user_id,
             clerk_user_id=clerk_user_id,
             email=email,
             role=role,
-            is_active=True,
-            is_verified=True,
+            status=UserStatus.ACTIVE,
         )
 
     return user_model

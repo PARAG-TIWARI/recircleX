@@ -31,36 +31,71 @@ export class ApiClient {
       }
     }
 
-    try {
-      const response = await fetch(url, {
-        ...options,
-        headers,
-      });
-
-      const data: ApiResponse<T> = await response.json().catch(() => ({
-        success: response.ok,
-        data: null,
-        message: response.statusText,
-        error: { code: response.status, detail: "Failed to parse JSON" },
-      }));
-
-      if (!response.ok && data.success) {
-        data.success = false;
+    if (!headers["Authorization"] && typeof window !== "undefined" && (window as any).Clerk?.session) {
+      try {
+        const token = await (window as any).Clerk.session.getToken();
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+      } catch (err) {
+        console.warn("Could not retrieve fallback auth token from Clerk session:", err);
       }
-
-      return data;
-    } catch (error: any) {
-      console.error(`API Error [${endpoint}]:`, error);
-      return {
-        success: false,
-        data: null,
-        message: error.message || "Network request failed",
-        error: {
-          code: 0,
-          detail: error.message || "Network error",
-        },
-      };
     }
+
+    let attempts = 0;
+    const maxAttempts = 2;
+
+    while (attempts < maxAttempts) {
+      attempts++;
+      try {
+        const response = await fetch(url, {
+          ...options,
+          headers,
+        });
+
+        const data: ApiResponse<T> = await response.json().catch(() => ({
+          success: response.ok,
+          data: null,
+          message: response.statusText || (response.ok ? "Success" : "Request failed"),
+          error: { code: response.status, detail: "Failed to parse JSON response" },
+        }));
+
+        if (!response.ok && data.success) {
+          data.success = false;
+        }
+
+        return data;
+      } catch (error: any) {
+        if (attempts < maxAttempts) {
+          console.warn(`API Attempt ${attempts} failed [${endpoint}]:`, error.message, "- Retrying in 1s...");
+          await new Promise((res) => setTimeout(res, 1000));
+          continue;
+        }
+
+        console.error(`API Error [${endpoint}] after ${attempts} attempts:`, error);
+        const isNetworkOrCors = error.name === "TypeError" || error.message?.includes("fetch");
+        const formattedMsg = isNetworkOrCors
+          ? "Unable to connect to RecycleX backend server. If the service is cold-starting, please retry in a moment."
+          : error.message || "Network request failed";
+
+        return {
+          success: false,
+          data: null,
+          message: formattedMsg,
+          error: {
+            code: 0,
+            detail: error.message || "Network error",
+          },
+        };
+      }
+    }
+
+    return {
+      success: false,
+      data: null,
+      message: "Network request failed",
+      error: { code: 0, detail: "Max retries exceeded" },
+    };
   }
 
   public static get<T = any>(endpoint: string, options?: RequestInit) {

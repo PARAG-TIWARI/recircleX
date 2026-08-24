@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { SignIn, SignUp, useUser } from "@clerk/nextjs";
+import { SignIn, SignUp, useUser, useAuth } from "@clerk/nextjs";
 import {
   ArrowLeft,
   ShieldCheck,
@@ -15,6 +15,8 @@ import {
   Lock,
   ArrowRight,
   Building2,
+  AlertTriangle,
+  RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -27,55 +29,110 @@ import { clerkAppearanceConfig } from "@/lib/clerk-theme";
 export default function IndividualAuthPage() {
   const router = useRouter();
   const { isSignedIn, user, isLoaded } = useUser();
+  const { getToken } = useAuth();
   const { toast } = useToast();
 
   const [mounted, setMounted] = useState(false);
   const [selectedRole, setSelectedRole] = useState<"HOUSEHOLD" | "COLLECTOR">("HOUSEHOLD");
   const [authMode, setAuthMode] = useState<"SIGNIN" | "SIGNUP">("SIGNIN");
   const [isSyncing, setIsSyncing] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
 
   const hasRoutedRef = useRef(false);
 
   useEffect(() => {
     setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    async function handleAuthRouting() {
-      if (isLoaded && isSignedIn && user && !hasRoutedRef.current) {
-        hasRoutedRef.current = true;
-        setIsSyncing(true);
-        try {
-          // 1. Check existing role in Clerk metadata or use selected role
-          const clerkRole = ((user.publicMetadata?.role as string) || selectedRole) as Roles;
-
-          // 2. Set role in Clerk publicMetadata via Server Action
-          await setUserRole(clerkRole, "INDIVIDUAL");
-
-          // 3. Sync to MongoDB Atlas
-          await authApi.syncUser({
-            clerk_user_id: user.id,
-            email: user.primaryEmailAddress?.emailAddress,
-            role: clerkRole,
-            portal: "INDIVIDUAL",
-            name: user.fullName || user.username || undefined,
-            avatar_url: user.imageUrl,
-          });
-
-          toast(`Authenticated as ${clerkRole}`, "success");
-
-          // 4. Force browser navigation to role dashboard
-          const targetUrl = clerkRole === "COLLECTOR" ? "/individual/collector" : "/individual/household";
-          window.location.href = targetUrl;
-        } catch (error: any) {
-          console.error("Clerk role sync error:", error);
-          const targetUrl = selectedRole === "COLLECTOR" ? "/individual/collector" : "/individual/household";
-          window.location.href = targetUrl;
-        }
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("recirclex_selected_role");
+      if (saved === "HOUSEHOLD" || saved === "COLLECTOR") {
+        setSelectedRole(saved);
       }
     }
+  }, []);
 
-    if (isSignedIn && isLoaded && user) {
+  const handleRoleSelect = (role: "HOUSEHOLD" | "COLLECTOR") => {
+    setSelectedRole(role);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("recirclex_selected_role", role);
+    }
+  };
+
+  const handleAuthRouting = async () => {
+    if (!isLoaded || !isSignedIn || !user || hasRoutedRef.current) return;
+
+    setIsSyncing(true);
+    setSyncError(null);
+
+    try {
+      // Get token directly for reliable backend header injection
+      const token = await getToken();
+
+      // Determine target role:
+      // 1. Existing Clerk metadata role takes highest precedence (preserves existing users!)
+      let clerkRole: Roles | undefined = user.publicMetadata?.role as Roles;
+
+      // 2. Check saved role from sessionStorage (survives Google OAuth redirects)
+      const savedRole = typeof window !== "undefined" ? sessionStorage.getItem("recirclex_selected_role") : null;
+      if (!clerkRole && (savedRole === "HOUSEHOLD" || savedRole === "COLLECTOR")) {
+        clerkRole = savedRole as Roles;
+      }
+
+      // 3. Fallback to UI selected role if still unassigned
+      if (!clerkRole) {
+        clerkRole = selectedRole as Roles;
+      }
+
+      // Enforce role boundary (Individual portal only accepts HOUSEHOLD or COLLECTOR)
+      if (!["HOUSEHOLD", "COLLECTOR"].includes(clerkRole)) {
+        clerkRole = "HOUSEHOLD";
+      }
+
+      // ONLY set/update Clerk publicMetadata if user does not already have this role
+      if (user.publicMetadata?.role !== clerkRole) {
+        const roleRes = await setUserRole(clerkRole, "INDIVIDUAL");
+        if (!roleRes.success) {
+          console.warn("setUserRole server action warning:", roleRes.message);
+        }
+      }
+
+      // Synchronize with MongoDB Atlas backend
+      const syncRes = await authApi.syncUser(
+        {
+          clerk_user_id: user.id,
+          email: user.primaryEmailAddress?.emailAddress,
+          role: clerkRole,
+          portal: "INDIVIDUAL",
+          name: user.fullName || user.username || undefined,
+          avatar_url: user.imageUrl,
+        },
+        token || undefined
+      );
+
+      if (!syncRes.success) {
+        throw new Error(syncRes.message || "Failed to synchronize profile with database");
+      }
+
+      // Clean up temporary session storage
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("recirclex_selected_role");
+      }
+
+      hasRoutedRef.current = true;
+      toast(`Authenticated as ${clerkRole}`, "success");
+
+      // Smooth client-side navigation
+      const targetUrl = clerkRole === "COLLECTOR" ? "/individual/collector" : "/individual/household";
+      router.replace(targetUrl);
+    } catch (error: any) {
+      console.error("Clerk role sync error:", error);
+      setIsSyncing(false);
+      setSyncError(error.message || "Failed to synchronize session with application server.");
+      hasRoutedRef.current = false; // Allow user to retry
+    }
+  };
+
+  useEffect(() => {
+    if (isSignedIn && isLoaded && user && !hasRoutedRef.current) {
       handleAuthRouting();
     }
   }, [isLoaded, isSignedIn, user]);
@@ -203,7 +260,7 @@ export default function IndividualAuthPage() {
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         type="button"
-                        onClick={() => setSelectedRole("HOUSEHOLD")}
+                        onClick={() => handleRoleSelect("HOUSEHOLD")}
                         className={`flex items-center gap-2 p-2.5 rounded-lg border text-left transition-all ${
                           selectedRole === "HOUSEHOLD"
                             ? "border-[#0F766E] bg-teal-50/70 text-[#0F766E] ring-1 ring-[#0F766E]"
@@ -219,7 +276,7 @@ export default function IndividualAuthPage() {
 
                       <button
                         type="button"
-                        onClick={() => setSelectedRole("COLLECTOR")}
+                        onClick={() => handleRoleSelect("COLLECTOR")}
                         className={`flex items-center gap-2 p-2.5 rounded-lg border text-left transition-all ${
                           selectedRole === "COLLECTOR"
                             ? "border-[#0F766E] bg-teal-50/70 text-[#0F766E] ring-1 ring-[#0F766E]"
@@ -262,6 +319,25 @@ export default function IndividualAuthPage() {
                   Sign Up (New Account)
                 </button>
               </div>
+
+              {/* Error Banner */}
+              {syncError && (
+                <div className="mb-4 p-3 rounded-lg border border-red-200 bg-red-50 text-xs text-red-700 flex items-start gap-2">
+                  <AlertTriangle className="h-4 w-4 text-red-600 shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-bold">Synchronization Error</p>
+                    <p className="text-[11px] mt-0.5 leading-snug">{syncError}</p>
+                    <button
+                      type="button"
+                      onClick={() => handleAuthRouting()}
+                      className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-red-600 text-white font-semibold text-[11px] hover:bg-red-700 transition-colors"
+                    >
+                      <RefreshCw className="h-3 w-3" />
+                      Retry Synchronization
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Clerk Form Embed Area */}
               <div className="w-full">

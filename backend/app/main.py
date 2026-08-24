@@ -40,9 +40,24 @@ def create_application() -> FastAPI:
 
     # Register Middlewares
     app.add_middleware(RequestIdMiddleware)
+
+    cors_origins = list(settings.CORS_ORIGINS) if isinstance(settings.CORS_ORIGINS, list) else ["*"]
+    default_origins = [
+        "https://frontend-mocha-nine-12.vercel.app",
+        "https://recirclex.onrender.com",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:8000",
+    ]
+    if "*" not in cors_origins:
+        for origin in default_origins:
+            if origin not in cors_origins:
+                cors_origins.append(origin)
+
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.CORS_ORIGINS if isinstance(settings.CORS_ORIGINS, list) else ["*"],
+        allow_origins=cors_origins,
+        allow_origin_regex=r"https://.*\.vercel\.app",
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

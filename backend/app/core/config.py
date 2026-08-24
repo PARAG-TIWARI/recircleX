@@ -59,15 +59,36 @@ class Settings(BaseSettings):
     @classmethod
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
         if isinstance(v, str) and not v.startswith("["):
-            return [i.strip() for i in v.split(",") if i.strip()]
+            origins = [i.strip() for i in v.split(",") if i.strip()]
+            if "https://frontend-mocha-nine-12.vercel.app" not in origins and "*" not in origins:
+                origins.append("https://frontend-mocha-nine-12.vercel.app")
+            return origins
         elif isinstance(v, str) and v.startswith("["):
             try:
-                return json.loads(v)
+                origins = json.loads(v)
+                if isinstance(origins, list):
+                    if "https://frontend-mocha-nine-12.vercel.app" not in origins and "*" not in origins:
+                        origins.append("https://frontend-mocha-nine-12.vercel.app")
+                    return origins
             except Exception:
-                return ["http://localhost:3000", "http://127.0.0.1:3000"]
+                pass
+            return [
+                "http://localhost:3000",
+                "http://127.0.0.1:3000",
+                "https://frontend-mocha-nine-12.vercel.app",
+                "https://recirclex.onrender.com",
+            ]
         elif isinstance(v, list):
-            return v
-        return ["*"]
+            origins = list(v)
+            if "https://frontend-mocha-nine-12.vercel.app" not in origins and "*" not in origins:
+                origins.append("https://frontend-mocha-nine-12.vercel.app")
+            return origins
+        return [
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
+            "https://frontend-mocha-nine-12.vercel.app",
+            "https://recirclex.onrender.com",
+        ]
 
     model_config = SettingsConfigDict(
         env_file=".env",
