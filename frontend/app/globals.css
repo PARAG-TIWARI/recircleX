@@ -1,4 +1,4 @@
-﻿/* â”€â”€â”€ Metropolis Font (Open Source via jsDelivr) â”€â”€â”€ */
+/* â”€â”€â”€ Metropolis Font (Open Source via jsDelivr) â”€â”€â”€ */
 @font-face {
   font-family: 'Metropolis';
   src: url('https://cdn.jsdelivr.net/npm/@fontsource/metropolis@latest/files/metropolis-latin-400-normal.woff2') format('woff2');
@@ -88,4 +88,33 @@
 ::-webkit-scrollbar-track { background: #f1f5f9; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* --- Clerk Auth Component Overrides --- */
+.cl-rootBox,
+.cl-cardBox,
+.cl-card,
+.cl-main,
+.cl-form,
+.cl-formField,
+.cl-formFieldInput,
+.cl-socialButtonsBlockButton,
+.cl-formButtonPrimary {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.cl-cardBox,
+.cl-card {
+  box-shadow: none !important;
+  border: none !important;
+  background-color: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.cl-header,
+.cl-footer {
+  display: none !important;
+}
 

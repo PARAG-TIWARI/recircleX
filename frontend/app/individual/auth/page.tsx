@@ -22,6 +22,7 @@ import { useToast } from "@/components/ui/toast";
 import { authApi } from "@/lib/api/auth";
 import { setUserRole } from "@/app/actions/roles";
 import { Roles } from "@/types/globals";
+import { clerkAppearanceConfig } from "@/lib/clerk-theme";
 
 export default function IndividualAuthPage() {
   const router = useRouter();
@@ -79,42 +80,6 @@ export default function IndividualAuthPage() {
     }
   }, [isLoaded, isSignedIn, user]);
 
-  const clerkAppearance = {
-    variables: {
-      colorPrimary: "#0F766E",
-      colorText: "#111827",
-      colorTextSecondary: "#64748B",
-      colorBackground: "#FFFFFF",
-      colorInputBackground: "#FFFFFF",
-      colorInputBorder: "#CBD5E1",
-      borderRadius: "0.5rem",
-      fontFamily: "Inter, sans-serif",
-      fontSize: "0.875rem",
-    },
-    elements: {
-      rootBox: "w-full",
-      card: "bg-transparent shadow-none border-none p-0 w-full",
-      header: "hidden",
-      formButtonPrimary:
-        "bg-[#0F766E] hover:bg-[#115E59] text-white text-xs font-semibold py-2.5 px-4 rounded-lg transition-colors shadow-2xs w-full",
-      formFieldRow: "flex gap-4 w-full",
-      formField: "flex-1 min-w-0 w-full",
-      formFieldLabelRow: "flex justify-between items-center w-full mb-1",
-      formFieldInput:
-        "rounded-lg border border-slate-300 bg-white text-slate-900 text-xs py-2 px-3 focus:border-[#0F766E] focus:ring-1 focus:ring-[#0F766E] shadow-2xs",
-      formFieldLabel: "text-xs font-semibold text-slate-700",
-      socialButtonsBlockButton:
-        "rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold py-2 transition-colors shadow-2xs",
-      dividerLine: "bg-slate-200",
-      dividerText: "text-[11px] text-slate-400 font-semibold uppercase tracking-wider",
-      footer: "hidden",
-      footerAction: "hidden",
-      identityPreviewText: "text-xs font-medium text-slate-700",
-      identityPreviewEditButton: "text-xs text-[#0F766E] font-semibold hover:underline",
-      formResendCodeLink: "text-xs text-[#0F766E] font-semibold hover:underline",
-      otpCodeFieldInput: "border-slate-300 focus:border-[#0F766E] text-slate-900 font-bold rounded-md",
-    },
-  };
 
   return (
     <div className="min-h-screen bg-[#F5F7F9] text-slate-900 flex flex-col justify-between">
@@ -312,7 +277,7 @@ export default function IndividualAuthPage() {
                     <p className="text-xs text-slate-500">Redirecting to operations console</p>
                   </div>
                 ) : (
-                  <div className="w-full">
+                  <div className="w-full max-w-full box-border">
                     {authMode === "SIGNUP" ? (
                       <SignUp
                         routing="hash"
@@ -322,14 +287,14 @@ export default function IndividualAuthPage() {
                           role: selectedRole,
                           portal: "INDIVIDUAL",
                         }}
-                        appearance={clerkAppearance}
+                        appearance={clerkAppearanceConfig}
                       />
                     ) : (
                       <SignIn
                         routing="hash"
                         signUpUrl="#signup"
                         fallbackRedirectUrl="/individual/auth"
-                        appearance={clerkAppearance}
+                        appearance={clerkAppearanceConfig}
                       />
                     )}
                   </div>
