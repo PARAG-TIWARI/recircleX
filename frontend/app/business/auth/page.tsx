@@ -57,6 +57,13 @@ export default function BusinessAuthPage() {
     }
   };
 
+  const handleAuthModeChange = (mode: "SIGNIN" | "SIGNUP") => {
+    setAuthMode(mode);
+    setSyncError(null);
+    setIsSyncing(false);
+    hasRoutedRef.current = false;
+  };
+
   const handleAuthRouting = useCallback(async () => {
     if (!isLoaded || !isSignedIn || !user || hasRoutedRef.current) return;
 
@@ -120,9 +127,13 @@ export default function BusinessAuthPage() {
       hasRoutedRef.current = true;
       toast(`Authenticated as ${clerkRole}`, "success");
 
-      // Smooth client-side navigation
+      // Direct reliable browser navigation to role dashboard (ensures fresh cookies in middleware)
       const targetUrl = clerkRole === "ENTERPRISE" ? "/business/enterprise" : "/business/recycler";
-      router.replace(targetUrl);
+      if (typeof window !== "undefined") {
+        window.location.replace(targetUrl);
+      } else {
+        router.replace(targetUrl);
+      }
     } catch (error: any) {
       console.error("Clerk role sync error:", error);
       setIsSyncing(false);
@@ -296,7 +307,7 @@ export default function BusinessAuthPage() {
               <div className="my-5 flex rounded-lg border border-slate-200 bg-slate-50 p-1">
                 <button
                   type="button"
-                  onClick={() => setAuthMode("SIGNIN")}
+                  onClick={() => handleAuthModeChange("SIGNIN")}
                   className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-colors ${authMode === "SIGNIN"
                       ? "bg-white text-slate-900 shadow-2xs"
                       : "text-slate-500 hover:text-slate-900"
@@ -306,7 +317,7 @@ export default function BusinessAuthPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setAuthMode("SIGNUP")}
+                  onClick={() => handleAuthModeChange("SIGNUP")}
                   className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-colors ${authMode === "SIGNUP"
                       ? "bg-white text-slate-900 shadow-2xs"
                       : "text-slate-500 hover:text-slate-900"
