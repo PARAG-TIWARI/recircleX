@@ -16,7 +16,7 @@ def generate_test_jwt(sub: str = "user_db_test_100", role: str = "HOUSEHOLD") ->
         "role": role,
         "exp": int(time.time()) + 3600,
     }
-    return jwt.encode(payload, "secret", algorithm="HS256")
+    return jwt.encode(payload, "mock_test_secret_key_32_bytes_long_12345", algorithm="HS256")
 
 
 def test_health_check_database_online():

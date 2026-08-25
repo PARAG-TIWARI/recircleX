@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Mail, MapPin } from "lucide-react";
 
 const NAV = [
@@ -58,9 +59,11 @@ export function Footer() {
           {/* Brand + CTA */}
           <div className="lg:col-span-4 space-y-6">
             <div className="flex items-center gap-3">
-              <img
+              <Image
                 src="/logo.png"
                 alt="RecircleX"
+                width={32}
+                height={32}
                 className="h-8 w-8 rounded-md object-contain"
                 style={{ background: "rgba(255,255,255,0.08)", padding: "4px" }}
               />

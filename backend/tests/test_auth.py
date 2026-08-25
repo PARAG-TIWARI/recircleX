@@ -14,7 +14,7 @@ def generate_mock_jwt(sub: str = "user_test123", role: str = "HOUSEHOLD", expire
         "role": role,
         "exp": int(time.time()) + (-3600 if expired else 3600),
     }
-    return jwt.encode(payload, "secret", algorithm="HS256")
+    return jwt.encode(payload, "mock_test_secret_key_32_bytes_long_12345", algorithm="HS256")
 
 
 def test_auth_sync_unauthenticated():

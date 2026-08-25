@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -70,6 +70,12 @@ def create_application() -> FastAPI:
 
     # Include API Routers
     app.include_router(api_v1_router)
+
+    from backend.app.api.v1.health import check_health
+
+    @app.api_route("/health", methods=["GET", "HEAD"], tags=["Health"])
+    async def root_health(response: Response):
+        return await check_health(response)
 
     @app.api_route("/", methods=["GET", "HEAD"], tags=["Root"])
     async def root():

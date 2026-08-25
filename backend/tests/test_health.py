@@ -41,3 +41,10 @@ async def test_health_endpoint():
             assert data["success"] is True
             assert "database" in data["data"]
             assert data["data"]["database"]["status"] == "connected"
+
+            # Verify direct /health root alias route
+            root_health_res = await client.get("/health")
+            assert root_health_res.status_code == 200
+            root_data = root_health_res.json()
+            assert root_data["success"] is True
+            assert root_data["data"]["database"]["status"] == "connected"

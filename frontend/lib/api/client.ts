@@ -1,6 +1,15 @@
 import { ApiResponse } from "@/types/user";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://recirclex.onrender.com";
+export function getApiBaseUrl(): string {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (typeof window !== "undefined") {
+    const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    if (!isLocalhost && (!envUrl || envUrl.includes("localhost") || envUrl.includes("127.0.0.1"))) {
+      return "https://recirclex.onrender.com";
+    }
+  }
+  return envUrl || "https://recirclex.onrender.com";
+}
 
 export class ApiClient {
   private static tokenGetter: (() => Promise<string | null>) | null = null;
@@ -13,7 +22,9 @@ export class ApiClient {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
-    const url = endpoint.startsWith("http") ? endpoint : `${API_BASE_URL}${endpoint}`;
+    const baseUrl = getApiBaseUrl().replace(/\/+$/, "");
+    const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+    const url = endpoint.startsWith("http") ? endpoint : `${baseUrl}${cleanEndpoint}`;
 
     const headers: Record<string, string> = {
       "Content-Type": "application/json",

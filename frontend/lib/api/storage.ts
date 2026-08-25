@@ -1,4 +1,4 @@
-import { ApiClient } from "./client";
+import { ApiClient, getApiBaseUrl } from "./client";
 
 export const storageApi = {
   uploadImage: async (file: File): Promise<{ url: string; public_id: string }> => {
@@ -11,7 +11,7 @@ export const storageApi = {
       headers["Authorization"] = `Bearer ${token}`;
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://recirclex.onrender.com";
+    const baseUrl = getApiBaseUrl().replace(/\/+$/, "");
     const res = await fetch(`${baseUrl}/api/v1/storage/upload`, {
       method: "POST",
       headers,

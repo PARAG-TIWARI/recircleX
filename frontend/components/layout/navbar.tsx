@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { useUser, UserButton } from "@clerk/nextjs";
 import {
@@ -116,7 +117,7 @@ export function Navbar() {
         {/* Left: Brand Identity */}
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-            <img src="/logo.png" alt="RecircleX Logo" className="h-9 w-9 rounded-lg object-contain" />
+            <Image src="/logo.png" alt="RecircleX Logo" width={36} height={36} priority className="h-9 w-9 rounded-lg object-contain" />
             <div>
               <span className="text-lg font-extrabold tracking-tight text-slate-900 leading-tight">
                 Recircle<span className="text-[#0F766E]">X</span>
