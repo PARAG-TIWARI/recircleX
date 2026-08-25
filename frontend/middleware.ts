@@ -15,7 +15,7 @@ const isBusinessRoute = createRouteMatcher([
   "/admin(.*)",
 ]);
 
-const clerkHandler = clerkMiddleware((auth, req) => {
+export default clerkMiddleware(async (auth, req) => {
   if (!isPublicRoute(req)) {
     // Send business/admin route visitors to the business portal
     const redirectUrl = isBusinessRoute(req)
@@ -25,12 +25,6 @@ const clerkHandler = clerkMiddleware((auth, req) => {
     auth().protect({ unauthenticatedUrl: redirectUrl });
   }
 });
-
-// Explicit function declaration so Turbopack static analysis
-// can detect the middleware export (Next.js 14 + 16 compatible).
-export default function middleware(request: NextRequest, event: NextFetchEvent) {
-  return clerkHandler(request, event);
-}
 
 export const config = {
   matcher: [
