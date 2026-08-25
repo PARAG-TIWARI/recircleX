@@ -96,13 +96,9 @@ export default function IndividualAuthPage() {
 
       // ONLY set/update Clerk publicMetadata if user does not already have this role
       if (user.publicMetadata?.role !== clerkRole) {
-        try {
-          const roleRes = await setUserRole(clerkRole, "INDIVIDUAL");
-          if (!roleRes?.success) {
-            console.warn("setUserRole server action warning:", roleRes?.message);
-          }
-        } catch (serverActionErr) {
-          console.warn("setUserRole server action exception:", serverActionErr);
+        const roleRes = await setUserRole(clerkRole, "INDIVIDUAL");
+        if (!roleRes.success) {
+          console.warn("setUserRole server action warning:", roleRes.message);
         }
       }
 
@@ -340,10 +336,7 @@ export default function IndividualAuthPage() {
                     <p className="text-[11px] mt-0.5 leading-snug">{syncError}</p>
                     <button
                       type="button"
-                      onClick={() => {
-                        hasRoutedRef.current = false;
-                        handleAuthRouting();
-                      }}
+                      onClick={() => handleAuthRouting()}
                       className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-red-600 text-white font-semibold text-[11px] hover:bg-red-700 transition-colors"
                     >
                       <RefreshCw className="h-3 w-3" />
@@ -372,7 +365,7 @@ export default function IndividualAuthPage() {
                       <SignUp
                         routing="hash"
                         signInUrl="#signin"
-                        fallbackRedirectUrl={selectedRole === "COLLECTOR" ? "/individual/collector" : "/individual/household"}
+                        fallbackRedirectUrl="/individual/auth"
                         unsafeMetadata={{
                           role: selectedRole,
                           portal: "INDIVIDUAL",
@@ -383,7 +376,7 @@ export default function IndividualAuthPage() {
                       <SignIn
                         routing="hash"
                         signUpUrl="#signup"
-                        fallbackRedirectUrl={selectedRole === "COLLECTOR" ? "/individual/collector" : "/individual/household"}
+                        fallbackRedirectUrl="/individual/auth"
                         appearance={clerkAppearanceConfig}
                       />
                     )}
